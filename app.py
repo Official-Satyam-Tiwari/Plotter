@@ -93,11 +93,6 @@ if nav == "Multiple Plotter":
 	y_label = st.text_input("Enter y-label:")
 	st.write(x_label,y_label)
 	title = st.text_input("Enter title of the plot:")
-#	sns.scatterplot(x = x_name,y = y_name,data=df)
-	#st.write(x_name,y_name,df[x_name],df[y_name],sns.scatterplot(x = x_name,y = y_name,data=df))
-	#st.pyplot()
-
-	#plt.figure(figsize=(8,6))
 	try:	
 		fig, ax = plt.subplots()
 		for i in range(len(y_name)):
@@ -116,7 +111,7 @@ if nav == "Multiple Plotter":
 			ax.set_title(title)
 		ax.legend()
 		st.pyplot(fig)
-	except ValueError:
+	except:
 		pass
 	if st.checkbox("Apply LSF:",value=False):
 		try:
