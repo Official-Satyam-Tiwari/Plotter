@@ -2,11 +2,11 @@ import numpy as np
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.metrics import r2_score
-from PIL import Image
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
-nav = st.sidebar.radio("Navigation",["Single Plotter","Conversion to CSV","Coming Soon","About Us"],index=0)
+nav = st.sidebar.radio("Navigation",["Single Plotter","Multiple Plotter","Conversion to CSV","Coming Soon","About Us"],index=0)
 
 if nav=="Single Plotter":
 	st.title("Plotter - Just upload it")
@@ -16,11 +16,9 @@ if nav=="Single Plotter":
 		st.write(df)
 	except ValueError:
 		pass
-		#print("First upload the file!")
-
-	x_name = st.text_input("Enter name of column for x-axis:")
-	y_name = st.text_input("Enter name of column for y-axis:")
-
+	x_name = st.selectbox("Select column for x-axis:",df.columns.tolist())
+	y_name = st.selectbox("Select column for y-axis:",df.columns.tolist()) #its a dictionary
+	
 	x_label = st.text_input("Enter x-label:")
 	y_label = st.text_input("Enter y-label:")
 	title = st.text_input("Enter title of the plot:")
@@ -34,13 +32,6 @@ if nav=="Single Plotter":
 		st.pyplot()
 	except:
 		pass
-	#with open("flower.png", "rb") as file:
-	#	btn = st.download_button(
-        #    		label="Download Plot",
-        #    		data=file,
-        #    		file_name="flower.png",
-        #    		mime="image/png")
-	
 	if st.checkbox("Apply LSF:",value=False):
 		try:
 			x = np.array(df[x_name])
@@ -68,12 +59,7 @@ if nav=="Single Plotter":
 if nav=="Conversion to CSV":
 	st.title("Conversion to CSV file")
 	st.write("### How to Convert Table Data to CSV")
-#	st.image("csv.png",height=100,width=None)
-# Add a header text
-
-# Add a list of steps
 	st.write("To convert a table kind of data into a CSV file, follow these steps:")
-
 	st.write("""
 1. Open the table in a spreadsheet software like Microsoft Excel, Google Sheets, or LibreOffice Calc.
 
@@ -90,10 +76,76 @@ if nav=="Conversion to CSV":
 7. If your spreadsheet software prompts you to confirm any formatting issues, review them and ensure they align with your expectations.
 
 Your table data should now be saved in CSV format, which can be opened in a wide range of applications and tools.""")
-
-# Add a footer text
 	st.write("Thanks for reading! If you have any questions or feedback, please feel free to reach out to us at 22n0292@iitb.ac.in .")
 	st.info("You may also use any free online converter such as : https://cloudconvert.com/csv-converter")
+
+if nav == "Multiple Plotter":
+	st.title("Plotter - Just upload it")
+	try:
+		name = st.file_uploader('Upload a CSV',type=["csv"])
+		df = pd.read_csv(name)
+		st.write(df)
+	except ValueError:
+		pass
+	x_name = st.selectbox("Select column for x-axis:",df.columns.tolist())
+	y_name = st.multiselect("Select columns for y-axis:",df.columns.tolist()) #its a dictionary
+	x_label = st.text_input("Enter x-label:")
+	y_label = st.text_input("Enter y-label:")
+	st.write(x_label,y_label)
+	title = st.text_input("Enter title of the plot:")
+#	sns.scatterplot(x = x_name,y = y_name,data=df)
+	#st.write(x_name,y_name,df[x_name],df[y_name],sns.scatterplot(x = x_name,y = y_name,data=df))
+	#st.pyplot()
+
+	#plt.figure(figsize=(8,6))
+	try:	
+		fig, ax = plt.subplots()
+		for i in range(len(y_name)):
+			ax.scatter(df[x_name],df[y_name[i]],label=y_name[i])
+		if len(x_label)==0:
+			ax.set_xlabel(x_name)
+		else:
+			ax.set_xlabel(x_label)
+		if len(y_label)==0:
+			ax.set_ylabel(y_name)
+		else:
+			ax.set_ylabel(y_label)
+		if len(title)==0:
+			ax.set_title(name.name[:-len(".csv")])
+		else:
+			ax.set_title(title)
+		ax.legend()
+		st.pyplot(fig)
+	except ValueError:
+		pass
+	if st.checkbox("Apply LSF:",value=False):
+		try:
+			x = np.array(df[x_name])
+			y = np.array(df[y_name])
+			m = []
+			c = []
+			r_s = []
+			for i in range(len(y_name)):
+				A = np.vstack([x, np.ones(len(x))]).T
+				m.append(np.linalg.lstsq(A, y, rcond=None)[0][0][0])
+				c.append(np.linalg.lstsq(A, y, rcond=None)[0][1][0])
+				m = np.array(m)
+				c = np.array(c)
+				#st.write(np.linalg.lstsq(A, y, rcond=None)[0][1][0])
+				y_pred = m*x + c
+				#st.write(y_pred)
+				r_s.append(r2_score(y, y_pred[i]))
+				ax.plot(x,y[i],label=y_name[i]+"Original Line",markersize=10)
+				ax.plot(x,y_pred[i],"r",label=y_name[i]+"Fitted Line")
+				ax.set_xlabel(x_label)
+				ax.set_ylabel(y_label[i])
+				ax.set_title(title)
+				st.success(f"For {y_name[i]}, Slope = {m[i]} & Intercept = {c[i]}")
+				st.info(f"\nEquation of Fitted Line : y = {m[i]:.2f} x + {c[i]:.2f}\n\nR-Squared Error = {r_s[i]}")
+			ax.legend()
+			st.pyplot(fig)
+		except:
+			st.write("(LSF, not working yet) First upload the data and input the names of columns to plot.")
 
 if nav == "About Us":
 	st.title("About Us")
