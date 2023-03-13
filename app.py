@@ -14,10 +14,10 @@ if nav=="Single Plotter":
 		name = st.file_uploader('Upload a CSV',type=["csv"])
 		df = pd.read_csv(name)
 		st.write(df)
+		x_name = st.selectbox("Select column for x-axis:",df.columns.tolist())
+		y_name = st.selectbox("Select column for y-axis:",df.columns.tolist()) #its a dictionary
 	except ValueError:
 		pass
-	x_name = st.selectbox("Select column for x-axis:",df.columns.tolist())
-	y_name = st.selectbox("Select column for y-axis:",df.columns.tolist()) #its a dictionary
 	
 	x_label = st.text_input("Enter x-label:")
 	y_label = st.text_input("Enter y-label:")
@@ -85,10 +85,10 @@ if nav == "Multiple Plotter":
 		name = st.file_uploader('Upload a CSV',type=["csv"])
 		df = pd.read_csv(name)
 		st.write(df)
+		x_name = st.selectbox("Select column for x-axis:",df.columns.tolist())
+		y_name = st.multiselect("Select columns for y-axis:",df.columns.tolist()) #its a dictionary
 	except ValueError:
 		pass
-	x_name = st.selectbox("Select column for x-axis:",df.columns.tolist())
-	y_name = st.multiselect("Select columns for y-axis:",df.columns.tolist()) #its a dictionary
 	x_label = st.text_input("Enter x-label:")
 	y_label = st.text_input("Enter y-label:")
 	st.write(x_label,y_label)
