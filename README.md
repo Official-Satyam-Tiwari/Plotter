@@ -1,2 +1,2 @@
 # Plotter
-Simple Plotter
+Simple Plotter using Streamlit.
